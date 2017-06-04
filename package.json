@@ -1,0 +1,25 @@
+{
+  "name": "ferrybigme-blog",
+  "version": "1.0.0",
+  "description": "Blog posts for ferrybig.me",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ferrybig/ferrybigme-blog.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ferrybig/ferrybigme-blog/issues"
+  },
+  "homepage": "https://github.com/ferrybig/ferrybigme-blog#readme",
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-file-to-json": "^1.1.3",
+    "gulp-markdown": "^1.2.0",
+    "gulp-remark-lint-dko": "^1.0.2",
+  }
+}
