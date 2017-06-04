@@ -5,4 +5,4 @@ deployment:
   release:
     branch: master
     commands:
-      - rsync -avz --rsync-path="$CIRCLE_PROJECT_REPONAME rsync" --delete public/ "$DEPLOY_SERVER_DIR"
+      - rsync -avz --rsync-path="$CIRCLE_PROJECT_REPONAME rsync" --delete build/ "$DEPLOY_SERVER_DIR"
