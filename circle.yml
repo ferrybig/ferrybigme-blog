@@ -1,6 +1,6 @@
 test:
   override:
-    - gulp
+    - npm run-script build
 deployment:
   release:
     branch: master
