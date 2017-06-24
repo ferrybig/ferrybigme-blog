@@ -4,8 +4,8 @@ const clean = require('gulp-clean');
 const marked = require('marked');
 const through = require('through2');
 const pygmentizebundled = require('pygmentize-bundled');
-const extreplace = require('gulp-ext-replace');
 const properties = require('properties');
+const fileToJson = require('gulp-file-to-json');
 
 gulp.task('lint', function() {
 	return gulp
@@ -30,13 +30,12 @@ gulp.task('build', ['clean', 'lint'], function() {
 		.src(['posts/**/*.md'])
 		.pipe(
 			through.obj(function(chunk, enc, cb) {
+				chunk.fileoptions = {};
+				chunk.toc = [];
 				const renderer = new marked.Renderer();
 				const renderedheading = renderer.heading;
 				renderer.heading = function(text, level) {
 					const escapedText = text.toLowerCase().replace(/[^\w]+/g, '-');
-					if (!chunk.toc) {
-						chunk.toc = [];
-					}
 					chunk.toc.push({ anchor: escapedText, level });
 					return `<h${level} id="${escapedText}">${text}</h${level}>`;
 				};
@@ -44,9 +43,8 @@ gulp.task('build', ['clean', 'lint'], function() {
 					if (lang === 'blogoptions') {
 						properties.parse(code, {}, function(error, obj) {
 							chunk.fileoptions = obj;
-							callback(error, undefined);
+							callback(error, '');
 						});
-						return callback(undefined, '');
 					} else {
 						pygmentizebundled({ lang: lang, format: 'html' }, code, function(err, result) {
 							callback(err, result ? result.toString() : 'undefined??');
@@ -69,12 +67,7 @@ gulp.task('build', ['clean', 'lint'], function() {
 					function(err, content) {
 						if (err) cb(err, chunk);
 						if (chunk.fileoptions) {
-							content =
-								'<!--' +
-								JSON.stringify(chunk.fileoptions) +
-								JSON.stringify(chunk.toc) +
-								'-->' +
-								content.replace('<pre><code class="lang-blogoptions">\n</code></pre>\n', '');
+							content = content.replace('<pre><code class="lang-blogoptions">\n</code></pre>\n', '');
 						}
 						chunk.contents = new Buffer(content);
 						cb(null, chunk);
@@ -82,7 +75,16 @@ gulp.task('build', ['clean', 'lint'], function() {
 				);
 			})
 		)
-		.pipe(extreplace('.html'))
+		.pipe(fileToJson())
+		.pipe(
+			through.obj(function(chunk, enc, cb) {
+				const data = JSON.parse(chunk.contents.toString());
+				data.toc = chunk.toc;
+				data.fileoptions = chunk.fileoptions;
+				chunk.contents = new Buffer(JSON.stringify(data));
+				cb(null, chunk);
+			})
+		)
 		.pipe(gulp.dest('build'));
 });
 
